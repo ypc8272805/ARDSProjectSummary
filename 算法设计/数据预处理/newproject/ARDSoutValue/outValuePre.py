@@ -13,6 +13,9 @@ data = pd.read_sql_query(sql, con=engine, index_col=None, coerce_float=True, par
 tempData = data.loc[:, ['subject_id', 'hadm_id', 'icustay_id', 'pao2', 'spo2', 'fio2',
                         'hr', 'temp', 'nbps', 'nbpd', 'nbpm', 'abps', 'abpd', 'abpm', 'rr', 'tv', 'mv', 'pip', 'plap',
                         'map', 'peep', 'gcseyes', 'gcsmotor', 'gcsverbal', 'height_first', 'weight_first', 'age']]
+#pao2 30-600
+tempData.loc[tempData['pao2'] <= 30, 'pao2'] = np.nan
+tempData.loc[tempData['pao2'] >= 600, 'pao2'] = np.nan
 # SpO2异常值处理,默认低于50的SpO2 全部排除
 tempData.loc[tempData['spo2'] <= 50, 'spo2'] = np.nan
 # FiO2没有异常值，但是有一定比例的缺失值，只需要补全缺失值即可
@@ -114,12 +117,12 @@ def nbpRandom(tempData, nbp, abp):
     # 把abpNotNull分为nbpNull和nbpNotNull两部分
     nbpNull = abpNotNull[abpNotNull[nbp].isnull()]  # 测试集
     nbpNotNull = abpNotNull[abpNotNull[nbp].notnull()]  # 训练集
-    X = nbpNotNull.loc[:, [abp, 'hr', 'rr', 'age', 'subject_id']]
+    X = nbpNotNull.loc[:, [abp, 'hr', 'rr', 'age', 'subject_id', 'icustay_id', 'pao2']]
     X = X.fillna(X.mean())
     y = nbpNotNull[nbp]
     regr = RandomForestRegressor(max_depth=2, random_state=0)
     regr.fit(X, y)
-    X_pre = nbpNull.loc[:, [abp, 'hr', 'rr', 'age', 'subject_id']]
+    X_pre = nbpNull.loc[:, [abp, 'hr', 'rr', 'age', 'subject_id', 'icustay_id', 'pao2']]
     X_pre = X_pre.fillna(X_pre.mean())
     nbpPre = regr.predict(X_pre)
     abpNotNull.loc[abpNotNull[nbp].isnull(), nbp] = nbpPre
@@ -130,9 +133,20 @@ def nbpRandom(tempData, nbp, abp):
 tempData = nbpRandom(tempData, nbp='nbps', abp='abps')
 tempData = nbpRandom(tempData, nbp='nbpm', abp='abpm')
 tempData = nbpRandom(tempData, nbp='nbpd', abp='abpd')
-#  temp = tempData.pip.value_counts()
-# temp.index.values
-# plt.bar(temp.index.values, list(temp))
-# plt.show()
-# naData = np.array(temp)
-# missMark = np.array(temp.isnull())
+# tv和mv可以使用这个函数进行处理
+tempData = nbpRandom(tempData, nbp='tv', abp='mv')
+tempData = nbpRandom(tempData, nbp='plap', abp='map')
+tempData = nbpRandom(tempData, nbp='pip', abp='map')
+
+'''
+需要对剩余的缺失值进行处理，一般就是均值代替或者使用knn来进行处理，由于数据量比较大，我暂时使用均值代替缺失值
+'''
+tempData = tempData.fillna(method='pad', limit=2)
+tempData = tempData.fillna(method='bfill', limit=2)
+tempData = tempData.fillna(tempData.mean())
+
+data.loc[:, ['subject_id', 'hadm_id', 'icustay_id', 'pao2', 'spo2', 'fio2',
+             'hr', 'temp', 'nbps', 'nbpd', 'nbpm', 'abps', 'abpd', 'abpm', 'rr', 'tv', 'mv', 'pip', 'plap',
+             'map', 'peep', 'gcseyes', 'gcsmotor', 'gcsverbal', 'height_first', 'weight_first', 'age']] = tempData
+
+data.to_csv("C:/Users/zg/OneDrive/ARDSProjectSummary/算法设计/数据预处理/newproject/ARDSoutValue/data/imputeData.csv")
