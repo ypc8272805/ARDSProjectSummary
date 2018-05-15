@@ -59,7 +59,12 @@
 MIMIC-III中的数据质量还是存在一些问题，质量不是很高，很多不符合生理情况的数值，这些问题，都要对每种生理参数结合患者的具体信息进
 行分析，才能确定异常值范围。<br>
 ```angular2html
-../数据预处理/newproject/datapre.ipynb
-../数据预处理/newproject/ARDSoutValue/outValuePre.py
+../数据预处理/ARDSoutValue/datapre.ipynb
+../数据预处理/ARDSoutValue/outValuePre.py
 ```
 以上文件中详细描述了如何处理异常值的方法，并对缺失值进行处理。
+
+### 2、缺失值处理
+```angular2html
+../数据预处理/ARDSoutValue/outValuePre.py
+```
