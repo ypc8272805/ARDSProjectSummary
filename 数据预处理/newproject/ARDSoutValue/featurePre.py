@@ -98,3 +98,5 @@ coef = coef.sort_values(by=['coef'], ascending=False)
 
 data.to_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/算法设计/数据预处理/newproject/ARDSoutValue/data/preData.csv')
 train_data.to_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/算法设计/数据预处理/newproject/ARDSoutValue/data/trainData.csv')
+
+import 
