@@ -10,9 +10,10 @@ import sklearn.preprocessing as preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn import linear_model
 from sklearn.metrics import accuracy_score
+from sqlalchemy import create_engine
 
 # 读取数据文件
-data = pd.read_csv("C:/Users/zg/OneDrive/ARDSProjectSummary/算法设计/数据预处理/newproject/ARDSoutValue/data/imputeData.csv")
+data = pd.read_csv("C:/Users/zg/OneDrive/ARDSProjectSummary/数据预处理/ARDSoutValue/data/imputeData.csv")
 # 对哑变量进行处理
 dummies_gender = pd.get_dummies(data['gender'], prefix='gender')
 dummies_careunit = pd.get_dummies(data['first_careunit'], prefix='first_careunit')
@@ -38,8 +39,7 @@ data['pf'] = data['pao2'] / (data['fio2'] / 100)
 # 归一化处理,将数值变量缩放到0-1范围
 
 
-min_max_scaler = preprocessing.MinMaxScaler()
-data['spo2_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['spo2']])
+
 data['fio2_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['fio2']])
 data['hr_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['hr']])
 data['temp_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['temp']])
@@ -80,23 +80,19 @@ data.loc[data['pf'] <= 300, 'pfclass_four'] = 2
 data.loc[data['pf'] <= 200, 'pfclass_four'] = 3
 data.loc[data['pf'] <= 100, 'pfclass_four'] = 4
 
-train_data = data.filter(
-    regex='spo2_.*|fio2_.*|hr_.*|temp_.*|nbps_.*|nbpm_.*|nbpd_.*|rr_.*|tv_scaler|tv_kg_.*|pip_.*|plap_.*|mv_.*|map_.*|peep_.*|gcs_.*|first_careunit_.*|dbsource_.*|age_.*|ethnicity_.*|admission_type_.*|gender_.*|sf_.*|height_first_.*|weight_first_.*|osi_.*|bmi_.*')
-train_label = data.loc[:, ['pfclass_two_300', 'pfclass_two_200', 'pfclass_two_100', 'pfclass_four']]
-
-# 先用逻辑回归看看情况
-X_train, X_test, y_train, y_test = train_test_split(
-    train_data, train_label, test_size=0.3, random_state=42)
-clf = linear_model.LogisticRegression(C=1.0, penalty='l1', tol=1e-6)
-clf.fit(X_train, y_train)
-y_pre = clf.predict(X_test)
-
-accuracy_score(y_test, y_pre)
-coef = pd.DataFrame({"columns": list(X_train.columns)[:], "coef": list(clf.coef_.T)})
-coef['coef'] = coef['coef'].abs()
-coef = coef.sort_values(by=['coef'], ascending=False)
-
-data.to_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/算法设计/数据预处理/newproject/ARDSoutValue/data/preData.csv')
-train_data.to_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/算法设计/数据预处理/newproject/ARDSoutValue/data/trainData.csv')
-
-import 
+'''
+把数据集分为：训练集 测试集
+注意：random_subject_id.csv为随机患者列表，制定选择前2100为测试集患者，剩余的为训练集患者
+总共8702名患者，
+train_id=6601
+'''
+train_id = pd.read_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/数据预处理/ARDSoutValue/data/random_subject_id.csv',
+                       nrows=6601)
+test_id = pd.read_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/数据预处理/ARDSoutValue/data/random_subject_id.csv',
+                      skiprows=6601)
+test_id = test_id.rename(index=str, columns={'29524': 'subject_id'})
+train_data = pd.merge(train_id, data, how='left', on=['subject_id', 'subject_id'])
+test_data = pd.merge(test_id, data, how='left', on=['subject_id', 'subject_id'])
+data.to_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/数据预处理/ARDSoutValue/data/preData.csv')
+train_data.to_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/数据预处理/ARDSoutValue/data/train_data.csv')
+test_data.to_csv('C:/Users/zg/OneDrive/ARDSProjectSummary/数据预处理/ARDSoutValue/data/test_data.csv') 
