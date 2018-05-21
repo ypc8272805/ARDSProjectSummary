@@ -39,8 +39,9 @@ data['pf'] = data['pao2'] / (data['fio2'] / 100)
 # 归一化处理,将数值变量缩放到0-1范围
 
 
-
+min_max_scaler = preprocessing.MinMaxScaler()
 data['fio2_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['fio2']])
+data['spo2_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['spo2']])
 data['hr_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['hr']])
 data['temp_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['temp']])
 data['nbps_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['nbps']])
@@ -69,7 +70,7 @@ data['tv_kg_scaler'] = min_max_scaler.fit_transform(data.loc[:, ['tv_kg']])
 data.loc[data['pf'] > 300, 'pfclass_two_300'] = 1
 data.loc[data['pf'] <= 300, 'pfclass_two_300'] = 0
 
-data.loc[data['pf'] > 300, 'pfclass_two_200'] = 1
+data.loc[data['pf'] > 200, 'pfclass_two_200'] = 1
 data.loc[data['pf'] <= 200, 'pfclass_two_200'] = 0
 
 data.loc[data['pf'] > 100, 'pfclass_two_100'] = 1
