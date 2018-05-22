@@ -41,19 +41,19 @@ def result(y_train, y_test, train_predict, test_predict, test_pre_num):
     result.append(test_tn / (test_tn + test_fn))
     result.append(accuracy_score(y_test, test_predict))
     result.append(1 - 0.5 * (test_tp / (test_tp + test_fn) + test_tn / (test_tn + test_fp)))
-    result.append(roc_auc_score(y_test, test_pre_num[:,1]))
+    result.append(roc_auc_score(y_test, test_pre_num[:, 1]))
     return result
 
 
 def AdaBoost(x_train, y_train, x_test, y_test):
     '''
-    函数名称：MLPC
+    函数名称：AdaBoost
     函数入参：训练集和测试集样本，x与y分开传入
     返回参数：返回的是模型训练结果，和绘制ROC曲线需要的参数
     描述：AdaBoost是一种集成学习算法，应该是一种串行的算法，之前小组内对这种算法有过
-    深入的讨论，这个算法表比较稳定，结果也很不错
+    深入的讨论，这个算法比较稳定，结果也很不错
     '''
-    clf = AdaBoostClassifier(n_estimators=100, n_jobs=-1)
+    clf = AdaBoostClassifier(n_estimators=200, learning_rate=0.1, random_state=100)
     clf.fit(x_train, y_train)
     train_pre = clf.predict(x_train)
     test_pre = clf.predict(x_test)
@@ -67,35 +67,53 @@ def AdaBoost(x_train, y_train, x_test, y_test):
 
 def XGBoost(X_train, y_train, X_test, y_test):
     clf = XGBClassifier(max_depth=100, learning_rate=0.0001, n_estimators=200, silent=False,
-                        objective='binary:logistic', n_jobs=-1)
-    eval_set = [(X_test, y_test)]#用于早停的测试
-    clf.fit(X_train, y_train, early_stopping_rounds=20, eval_metric="logloss", eval_set=eval_set, verbose=True)
-    #保存最优树
+                        objective='binary:logistic', random_state=100, n_jobs=10)
+    eval_set = [(X_test, y_test)]  # 用于早停的测试
+    clf.fit(X_train, y_train, early_stopping_rounds=20, eval_metric="logloss", eval_set=eval_set, verbose=False)
+    # 保存最优树
     limit = clf.best_iteration
     train_predict = clf.predict(X_train, ntree_limit=limit)
     test_predict = clf.predict(X_test, ntree_limit=limit)
     test_pre_num = clf.predict_proba(X_test)
     fpr, tpr, thresholds = roc_curve(y_test, test_pre_num[:, 1])  # 用于绘制ROC曲线
     results = result(y_train, y_test, train_predict, test_predict, test_pre_num)
-    #    dtrain = xgb.DMatrix(X_train, label=y_train)
-    #    dtest = xgb.DMatrix(X_test, label=y_test)
-    #    param = {'max_depth': 100, 'eta': 0.0001, 'silent': 0, 'objective': 'binary:logistic', 'tree_method': 'exact',
-    #             'lambda': 0.5,'nth'}
-    #    watchlist = [(dtest, 'eval'), (dtrain, 'train')]
-    #    num_round = 2
-    #    bst = xgb.train(param, dtrain, num_round, watchlist)
-    #
-    #    train_pre_num = bst.predict(dtrain)
-    #    train_predict = []
-    #    for i in range(len(train_pre_num)):
-    #        train_predict.append(round(train_pre_num[i]))
-    #
-    #    test_pre_num = bst.predict(dtest)
-    #    test_predict = []
-    #    for i in range(len(test_pre_num)):
-    #        test_predict.append(round(test_pre_num[i]))
-    #    fpr, tpr, thresholds = roc_curve(y_test, test_pre_num)
-    #    results = result(y_train, y_test, train_predict, test_predict, test_pre_num)
+    return results, fpr, tpr
 
 
+def LogReg(x_train, y_train, x_test, y_test):
+    '''
+    函数名称：MLPC
+    函数入参：训练集和测试集样本，x与y分开传入
+    返回参数：返回的是模型训练结果，和绘制ROC曲线需要的参数
+    描述：逻辑回归算法
+    '''
+    clf = LogisticRegression(penalty='l2', random_state=100, solver='sag', max_iter=200, n_jobs=10)
+    clf.fit(x_train, y_train)
+    train_pre = clf.predict(x_train)
+    test_pre = clf.predict(x_test)
+    # 计算测试集的AUC值
+    test_pre_num = clf.predict_proba(x_test)
+    fpr, tpr, thresholds = roc_curve(y_test, test_pre_num[:, 1])
+    # 计算结果 训练集和测试集
+    results = result(y_train, y_test, train_pre, test_pre, test_pre_num)
+    return results, fpr, tpr
+
+
+def MLPC(x_train, y_train, x_test, y_test):
+    '''
+    函数名称：MLPC
+    函数入参：训练集和测试集样本，x与y分开传入
+    返回参数：返回的是模型训练结果，和绘制ROC曲线需要的参数
+    描述：这个函数主要是封装了神经网络的相关模块
+    '''
+    clf = MLPClassifier(hidden_layer_sizes=(50,), activation='tanh', solver='adam',
+                        batch_size=50, max_iter=200, shuffle=True)
+    clf.fit(x_train, y_train)
+    train_pre = clf.predict(x_train)
+    test_pre = clf.predict(x_test)
+    # 计算测试集的AUC值
+    test_pre_num = clf.predict_proba(x_test)
+    fpr, tpr, thresholds = roc_curve(y_test, test_pre_num[:, 1])
+    # 计算结果 训练集和测试集
+    results = result(y_train, y_test, train_pre, test_pre, test_pre_num)
     return results, fpr, tpr
