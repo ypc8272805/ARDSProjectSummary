@@ -23,12 +23,13 @@ y = np.array(y_resampled).ravel()
 sizes = np.shape(X)
 s_result = pd.DataFrame()
 for i in range(1, (sizes[1] + 1)):
+    # for i in range(1, (2 + 1)):
     data_pre = X[:, 0:i]
     Result = pd.DataFrame()  # 用于存储结果
-    skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=20)
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=20)
     cross_index = 1
     for train_index, test_index in skf.split(data_pre, y):
-        X_train, X_test = X[train_index], X[test_index]
+        X_train, X_test = data_pre[train_index], data_pre[test_index]
         y_train, y_test = y[train_index], y[test_index]
         # 算法设计
         print('***交叉验证第' + str(cross_index) + '折开始***')
