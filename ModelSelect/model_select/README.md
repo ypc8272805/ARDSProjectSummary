@@ -26,7 +26,7 @@
 * 逻辑回归
 * AdaBoost
 * XGBoost<br>
-其中，前三种方法使用的是scikit-learn进行实现。具体的算法在`algo.py `中。
+其中，前三种方法使用的是scikit-learn进行实现。具体的算法在`algo.py`中。
 ## 模型评估
 利用交叉验证方法，评估者四种方法在不同特征子集下的辨识效果，具体实现在`pf300.py`中。
 <br>最终计算结果存储在`result.csv`中，结果中存储了每种算法对应的不同特征子集的结果，用于后续分析。
@@ -34,5 +34,5 @@
 SEN SPE ACC BER AUC ROC曲线 不同特征子集下的BER AUC曲线变化情况。使用适当的方法选择合适的特征子集和算法。具体实现在`algo.result()`中
 ## 特征选择的结果
 根据`result.csv`中的结果，我们可以找到每种算法的最优特征子集，具体程序在`resultPlot.py`中。
-![Feature Select Result](https://github.com/ypc8272805/ARDSProjectSummary/blob/master/ModelSelect/result/featureSelect2.png)
+![Feature Select Result](https://github.com/ypc8272805/ARDSProjectSummary/blob/master/ModelSelect/model_select/result/featureSelect2.png)
 <br>从图中，我们也可以看出每种算法，在不同特征子集下的BER变化趋势。
