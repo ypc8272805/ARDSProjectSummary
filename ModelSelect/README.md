@@ -34,4 +34,5 @@
 SEN SPE ACC BER AUC ROC曲线 不同特征子集下的BER AUC曲线变化情况。使用适当的方法选择合适的特征子集和算法。具体实现在`algo.result()`中
 ## 特征选择的结果
 根据`result.csv`中的结果，我们可以找到每种算法的最优特征子集，具体程序在`resultPlot.py`中。
-![Feature Select Result](https://github.com/ypc8272805/ARDSProjectSummary/blob/master/算法设计/result/featureSelect2.png)
+![Feature Select Result](https://github.com/ypc8272805/ARDSProjectSummary/blob/master/ModelSelect/result/featureSelect2.png)
+<br>从图中，我们也可以看出没种算法，在不同特征子集下的BER拜年话趋势。
