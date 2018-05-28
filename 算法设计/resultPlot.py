@@ -44,7 +44,7 @@ upper = Log.iloc[11, minIndex - 1] + Log_s.iloc[11, minIndex - 1]
 lower = Log.iloc[11, minIndex - 1] - Log_s.iloc[11, minIndex - 1]
 Log.iloc[11, :] > lower
 Log.iloc[11, :] < upper
-plt.plot(37, temp[38], 'b^')
+plt.plot(37, temp[36], 'b^')
 
 # 绘制Ada
 plt.plot(range(1, 44), Ada.iloc[11, :].values, 'g-', label=r'Ada BER mean', alpha=.5)
@@ -63,7 +63,7 @@ Ada.iloc[11, :] < upper
 plt.plot(37, temp[36], 'g^')
 
 # 绘制XGB
-plt.plot(range(1, 44), XGB.iloc[11, :].values, 'k.-', label=r'XGB BER mean', alpha=.5)
+plt.plot(range(1, 44), XGB.iloc[11, :].values, 'k-', label=r'XGB BER mean', alpha=.5)
 XGB_upper = np.array(XGB) + np.array(XGB_s)
 XGB_lower = np.array(XGB) - np.array(XGB_s)
 plt.fill_between(range(1, 44), XGB_lower[11, :], XGB_upper[11, :], color='grey', alpha=.5, )
