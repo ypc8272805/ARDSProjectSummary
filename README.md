@@ -8,7 +8,7 @@
 - 患者选择
 - 数据提取
 - 特征值选择
-- 算法设计
+- Model Select
 - 实验结果
 - 总结
 
@@ -68,3 +68,11 @@ MIMIC-III中的数据质量还是存在一些问题，质量不是很高，很�
 ```angular2html
 ../数据预处理/ARDSoutValue/outValuePre.py
 ```
+
+## 特征值排序
+`ModelSelect/model_select/featureSelection.py`
+## 模型选择
+`ModelSelect/model_select/pf300.py`
+## 模型训练
+`ModelSelect/model_train/feature_select_train.py`
+## 预测
