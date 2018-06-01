@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-result = pd.read_csv('result.csv')
+result = pd.read_csv('result/result.csv')
 result = result * 100
 Mnet = result.iloc[:, range(0, 344, 8)]
 Mnet_s = result.iloc[:, range(1, 344, 8)]
